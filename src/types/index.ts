@@ -32,6 +32,32 @@ export interface ChatEvent {
 
 export type PomodoroState = 'idle' | 'work' | 'break'
 
+export type UserLevel = 'none' | 'bronze' | 'silver' | 'gold' | 'diamond'
+
+export function getLevel(totalMinutes: number): UserLevel {
+  if (totalMinutes >= 1200) return 'diamond' // 20h+
+  if (totalMinutes >= 600) return 'gold'     // 10h+
+  if (totalMinutes >= 300) return 'silver'   // 5h+
+  if (totalMinutes >= 60) return 'bronze'    // 1h+
+  return 'none'
+}
+
+export const LEVEL_BORDER_COLORS: Record<UserLevel, string | null> = {
+  none: null,
+  bronze: '#CD7F32',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  diamond: '#67E8F9',
+}
+
+export const LEVEL_LABELS: Record<UserLevel, string> = {
+  none: '',
+  bronze: '🥉',
+  silver: '🥈',
+  gold: '🥇',
+  diamond: '💎',
+}
+
 export const SEAT_LAYOUT: SeatConfig[] = [
   // Row 1 (top)
   { id: 'seat_01', x: 8,  y: 12, label: 'A1' },

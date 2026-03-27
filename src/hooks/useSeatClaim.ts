@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { claimSeat, leaveSeat, findSeatByUid, leaveAllSeatsForUid, updateSeatNickname } from '../firebase/seats'
 import { incrementVisitorCount, addStudyMinutes } from '../firebase/stats'
+import { addUserStudyMinutes } from '../firebase/users'
 import { useAuth } from '../contexts/AuthContext'
 import { useSeats } from '../contexts/SeatsContext'
 import { useStats } from '../contexts/StatsContext'
@@ -67,6 +68,7 @@ export function useSeatClaim() {
         await leaveSeat(seatId)
         if (minutes >= 1) {
           addStudyMinutes(minutes)
+          if (user) addUserStudyMinutes(user.uid, Math.floor(minutes))
           setLastStudyMinutes(Math.floor(minutes))
         }
       } catch (e) {
@@ -82,7 +84,10 @@ export function useSeatClaim() {
       const minutes = seat ? (Date.now() - seat.satAt) / 60000 : 0
       try {
         await leaveSeat(mySeatId)
-        if (minutes >= 1) addStudyMinutes(minutes)
+        if (minutes >= 1) {
+          addStudyMinutes(minutes)
+          if (user) addUserStudyMinutes(user.uid, Math.floor(minutes))
+        }
       } catch { /* ignore */ }
       setMySeatId(null)
     }
@@ -121,6 +126,7 @@ export function useSeatClaim() {
       await leaveSeat(mySeatId)
       if (minutes >= 1) {
         addStudyMinutes(minutes)
+        if (user) addUserStudyMinutes(user.uid, Math.floor(minutes))
         setLastStudyMinutes(Math.floor(minutes))
       }
     } catch (e) {

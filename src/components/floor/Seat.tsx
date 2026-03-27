@@ -1,8 +1,9 @@
 import React from 'react'
-import { SeatConfig, SeatDoc } from '../../types'
+import { SeatConfig, SeatDoc, LEVEL_BORDER_COLORS, LEVEL_LABELS, UserLevel } from '../../types'
 import SeatDurationBadge from './SeatDurationBadge'
 import { useStats } from '../../contexts/StatsContext'
 import { useAuth } from '../../contexts/AuthContext'
+import { useSeats } from '../../contexts/SeatsContext'
 import { leaveSeat } from '../../firebase/seats'
 import { banUser } from '../../firebase/stats'
 
@@ -25,8 +26,11 @@ function nickColor(name: string): string {
 export default function Seat({ config, occupant, isMine, isOccupied, isClaiming, onClick }: SeatProps) {
   const { stats } = useStats()
   const { user } = useAuth()
+  const { userLevels } = useSeats()
   const isAdmin = !!occupant && stats.adminUids.includes(occupant.occupantUid)
   const iAmAdmin = !!user && stats.adminUids.includes(user.uid)
+  const occupantLevel: UserLevel = (occupant && userLevels.get(occupant.occupantUid)) ?? 'none'
+  const levelBorderColor = LEVEL_BORDER_COLORS[occupantLevel]
   const pomodoroActive = occupant?.pomodoroMode === 'work'
   const isClickable = !isOccupied || isMine
 
@@ -93,11 +97,18 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
       )}
 
       {/* チェアボックス */}
-      <div className={`
-        w-11 h-11 rounded-xl flex items-center justify-center text-xl shadow-md transition-all duration-200
-        ${boxStyle}
-        ${pomodoroActive ? 'ring-1 ring-red-500' : ''}
-      `}>
+      <div
+        className={`
+          w-11 h-11 rounded-xl flex items-center justify-center text-xl shadow-md transition-all duration-200
+          ${boxStyle}
+          ${pomodoroActive && !levelBorderColor ? 'ring-1 ring-red-500' : ''}
+        `}
+        style={levelBorderColor ? {
+          outline: `2px solid ${levelBorderColor}`,
+          outlineOffset: '1px',
+          boxShadow: `0 0 6px ${levelBorderColor}60`,
+        } : undefined}
+      >
         {iconEl}
       </div>
 
@@ -107,6 +118,9 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: nickColor(occupant.nickname) }} />
           <span className="text-xs text-gray-300 max-w-16 truncate leading-tight mt-0.5">
             {occupant.nickname}
+            {occupantLevel !== 'none' && (
+              <span className="ml-0.5">{LEVEL_LABELS[occupantLevel]}</span>
+            )}
           </span>
           <SeatDurationBadge satAt={occupant.satAt} />
           {occupant.pomodoroMode && (

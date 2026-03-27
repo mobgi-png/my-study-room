@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { SeatDoc, ChatEvent, MILESTONE_INTERVALS_MS } from '../types'
+import { SeatDoc, ChatEvent, MILESTONE_INTERVALS_MS, getLevel, UserLevel } from '../types'
 import { subscribeToSeats } from '../firebase/seats'
 import { getMilestoneKey, pickProduct } from '../config/affiliates'
+import { getUserTotalMinutes } from '../firebase/users'
 
 // 60秒以内に3回以上着席したUIDはチャットに表示しない
 const SPAM_WINDOW_MS = 60_000
@@ -11,19 +12,23 @@ interface SeatsContextValue {
   seats: Map<string, SeatDoc>
   chatEvents: ChatEvent[]
   onlineCount: number
+  userLevels: Map<string, UserLevel> // uid → level
 }
 
 const SeatsContext = createContext<SeatsContextValue>({
   seats: new Map(),
   chatEvents: [],
   onlineCount: 0,
+  userLevels: new Map(),
 })
 
 export function SeatsProvider({ children }: { children: React.ReactNode }) {
   const [seats, setSeats] = useState<Map<string, SeatDoc>>(new Map())
   const [chatEvents, setChatEvents] = useState<ChatEvent[]>([])
+  const [userLevels, setUserLevels] = useState<Map<string, UserLevel>>(new Map())
   const prevSeatsRef = useRef<Map<string, SeatDoc>>(new Map())
   const announcedMilestonesRef = useRef<Set<string>>(new Set())
+  const fetchedUidsRef = useRef<Set<string>>(new Set())
   // uid → 着席タイムスタンプの配列
   const joinHistoryRef = useRef<Map<string, number[]>>(new Map())
 
@@ -92,6 +97,19 @@ export function SeatsProvider({ children }: { children: React.ReactNode }) {
     return unsub
   }, [])
 
+  // 新しい着席者のレベルを取得
+  useEffect(() => {
+    seats.forEach((seat) => {
+      const uid = seat.occupantUid
+      if (!fetchedUidsRef.current.has(uid)) {
+        fetchedUidsRef.current.add(uid)
+        getUserTotalMinutes(uid).then((mins) => {
+          setUserLevels((prev) => new Map(prev).set(uid, getLevel(mins)))
+        }).catch(() => {})
+      }
+    })
+  }, [seats])
+
   // マイルストーンチェック（1分ごと）
   useEffect(() => {
     const interval = setInterval(() => {
@@ -131,7 +149,7 @@ export function SeatsProvider({ children }: { children: React.ReactNode }) {
   }, [seats])
 
   return (
-    <SeatsContext.Provider value={{ seats, chatEvents, onlineCount: seats.size }}>
+    <SeatsContext.Provider value={{ seats, chatEvents, onlineCount: seats.size, userLevels }}>
       {children}
     </SeatsContext.Provider>
   )
