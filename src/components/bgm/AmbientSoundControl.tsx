@@ -5,7 +5,7 @@ const OPTIONS: { type: AmbientType; emoji: string; label: string }[] = [
   { type: 'off',   emoji: '🔇', label: 'なし' },
   { type: 'rain',  emoji: '🌧', label: '雨音' },
   { type: 'cafe',  emoji: '☕', label: 'カフェ' },
-  { type: 'white', emoji: '〜', label: 'ノイズ' },
+  { type: 'river', emoji: '🏞', label: '川' },
 ]
 
 export default function AmbientSoundControl() {

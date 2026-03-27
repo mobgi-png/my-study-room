@@ -1,33 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export type AmbientType = 'off' | 'rain' | 'cafe' | 'white'
+export type AmbientType = 'off' | 'rain' | 'cafe' | 'river'
 
 interface AmbientNodes {
   source: AudioBufferSourceNode
   gain: GainNode
 }
 
-function buildBuffer(ctx: AudioContext, type: Exclude<AmbientType, 'off'>): AudioBuffer {
+function buildBuffer(ctx: AudioContext): AudioBuffer {
+  // Brown noise base — warm and natural, good for all ambient types
   const bufferSize = ctx.sampleRate * 3
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
   const data = buffer.getChannelData(0)
-
-  if (type === 'white') {
-    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1
-  } else {
-    // Brown noise: warm, low-rumble — good base for rain & cafe
-    let last = 0
-    for (let i = 0; i < bufferSize; i++) {
-      const w = Math.random() * 2 - 1
-      last = (last + 0.02 * w) / 1.02
-      data[i] = last * 3.5
-    }
+  let last = 0
+  for (let i = 0; i < bufferSize; i++) {
+    const w = Math.random() * 2 - 1
+    last = (last + 0.02 * w) / 1.02
+    data[i] = last * 3.5
   }
   return buffer
 }
 
 function buildNodes(ctx: AudioContext, type: Exclude<AmbientType, 'off'>): AmbientNodes {
-  const buffer = buildBuffer(ctx, type)
+  const buffer = buildBuffer(ctx)
   const source = ctx.createBufferSource()
   source.buffer = buffer
   source.loop = true
@@ -49,8 +44,20 @@ function buildNodes(ctx: AudioContext, type: Exclude<AmbientType, 'off'>): Ambie
     filter.frequency.value = 600
     source.connect(filter)
     filter.connect(gain)
-  } else {
-    source.connect(gain)
+  } else if (type === 'river') {
+    // Highpass + bandpass layered → babbling brook / stream
+    const high = ctx.createBiquadFilter()
+    high.type = 'highpass'
+    high.frequency.value = 300
+
+    const band = ctx.createBiquadFilter()
+    band.type = 'bandpass'
+    band.frequency.value = 1200
+    band.Q.value = 0.3
+
+    source.connect(high)
+    high.connect(band)
+    band.connect(gain)
   }
 
   gain.connect(ctx.destination)
