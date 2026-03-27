@@ -109,7 +109,7 @@ export function SeatsProvider({ children }: { children: React.ReactNode }) {
           knownIds.add(r.id)
           newEvents.push({
             id: `reaction-${r.id}`,
-            message: `${r.emoji} ${r.fromNickname} → ${r.toNickname}`,
+            message: `${r.emoji} ${r.toNickname} さんへ 一緒にがんばろう！が届きました`,
             timestamp: r.timestamp,
             type: 'reaction',
             nickname: r.toNickname,
@@ -156,7 +156,6 @@ export function SeatsProvider({ children }: { children: React.ReactNode }) {
                 ? `🔥 ${seat.nickname} さん、1時間継続！その調子です！`
                 : `💪 ${seat.nickname} さん、${hours}時間作業継続！素晴らしい集中力です！`
             }
-            // マイルストーンにアフィリエイト商品をランダム添付
             const milestoneKey = getMilestoneKey(ms)
             const product = pickProduct(milestoneKey)
             setChatEvents((prev) => [...prev.slice(-49), {
@@ -164,6 +163,7 @@ export function SeatsProvider({ children }: { children: React.ReactNode }) {
               message: msg,
               timestamp: now,
               type: 'milestone',
+              uid: seat.occupantUid,
               affiliate: product ?? undefined,
             }])
           }

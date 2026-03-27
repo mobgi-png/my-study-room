@@ -109,7 +109,12 @@ function Room() {
             </div>
           </div>
 
-          <FloorPlan mySeatId={mySeatId} claiming={claiming} onSeatClick={handleSeatClickWithCheck} />
+          {/* モバイルで席が重ならないよう横スクロール可能にする */}
+          <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+            <div style={{ minWidth: '580px' }}>
+              <FloorPlan mySeatId={mySeatId} claiming={claiming} onSeatClick={handleSeatClickWithCheck} />
+            </div>
+          </div>
 
           {/* 自分の席パネル */}
           {mySeatId && (

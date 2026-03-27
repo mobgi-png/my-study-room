@@ -13,7 +13,7 @@ const typeColors: Record<ChatEvent['type'], string> = {
 }
 
 export default function ChatMessage({ event }: { event: ChatEvent }) {
-  const { nickname } = useAuth()
+  const { nickname, user } = useAuth()
   const [sent, setSent] = useState(false)
   const [sending, setSending] = useState(false)
 
@@ -61,8 +61,8 @@ export default function ChatMessage({ event }: { event: ChatEvent }) {
         <span className="ml-1 text-blue-400 text-[10px]">応援を送りました！</span>
       )}
 
-      {/* アフィリエイトリンク（マイルストーン達成時のみ） */}
-      {event.affiliate && (
+      {/* アフィリエイトリンク（自分のマイルストーン達成時のみ） */}
+      {event.affiliate && event.uid === user?.uid && (
         <a
           href={event.affiliate.url}
           target="_blank"

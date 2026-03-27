@@ -8,7 +8,6 @@ interface AmbientNodes {
 }
 
 function buildBuffer(ctx: AudioContext): AudioBuffer {
-  // Brown noise base — warm and natural, good for all ambient types
   const bufferSize = ctx.sampleRate * 3
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
   const data = buffer.getChannelData(0)
@@ -30,7 +29,6 @@ function buildNodes(ctx: AudioContext, type: Exclude<AmbientType, 'off'>): Ambie
   const gain = ctx.createGain()
 
   if (type === 'rain') {
-    // Bandpass → sounds like rain on a window
     const filter = ctx.createBiquadFilter()
     filter.type = 'bandpass'
     filter.frequency.value = 700
@@ -38,23 +36,19 @@ function buildNodes(ctx: AudioContext, type: Exclude<AmbientType, 'off'>): Ambie
     source.connect(filter)
     filter.connect(gain)
   } else if (type === 'cafe') {
-    // Lowpass → muffled background chatter
     const filter = ctx.createBiquadFilter()
     filter.type = 'lowpass'
     filter.frequency.value = 600
     source.connect(filter)
     filter.connect(gain)
   } else if (type === 'river') {
-    // Highpass + bandpass layered → babbling brook / stream
     const high = ctx.createBiquadFilter()
     high.type = 'highpass'
     high.frequency.value = 300
-
     const band = ctx.createBiquadFilter()
     band.type = 'bandpass'
     band.frequency.value = 1200
     band.Q.value = 0.3
-
     source.connect(high)
     high.connect(band)
     band.connect(gain)
@@ -76,36 +70,48 @@ export function useAmbientSound() {
     nodesRef.current = null
   }, [])
 
-  // type が変わったら再生しなおす
+  // iOS Safari 対応: AudioContext はクリックイベント内（同期処理）で生成する必要がある
+  // setType の代わりにこちらを呼ぶ
+  const selectType = useCallback((newType: AmbientType) => {
+    if (newType !== 'off') {
+      // クリックハンドラの同期処理内で生成 → iOS でも動作する
+      if (!ctxRef.current || ctxRef.current.state === 'closed') {
+        ctxRef.current = new AudioContext()
+      }
+      // suspended 状態（iOS がブロックした場合）を解除
+      ctxRef.current.resume().catch(() => {})
+    }
+    setType(newType)
+  }, [])
+
+  // type が変わったら再生しなおす（ctxRef はすでに生成済みのはず）
   useEffect(() => {
     if (type === 'off') {
       stopNodes()
       return
     }
-
-    // AudioContext はユーザー操作後に生成する必要がある
-    if (!ctxRef.current || ctxRef.current.state === 'closed') {
-      ctxRef.current = new AudioContext()
-    }
     const ctx = ctxRef.current
+    if (!ctx) return
 
-    stopNodes()
-    const nodes = buildNodes(ctx, type)
-    nodes.gain.gain.value = volume / 100
-    nodes.source.start()
-    nodesRef.current = nodes
+    // resume してから再生（念のため）
+    ctx.resume().then(() => {
+      stopNodes()
+      const nodes = buildNodes(ctx, type)
+      nodes.gain.gain.value = volume / 100
+      nodes.source.start()
+      nodesRef.current = nodes
+    }).catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type])
 
-  // volume が変わったらゲインだけ更新
+  // 音量だけ更新
   useEffect(() => {
-    if (nodesRef.current) {
-      nodesRef.current.gain.gain.setTargetAtTime(volume / 100, ctxRef.current!.currentTime, 0.1)
+    if (nodesRef.current && ctxRef.current) {
+      nodesRef.current.gain.gain.setTargetAtTime(volume / 100, ctxRef.current.currentTime, 0.1)
     }
   }, [volume])
 
-  // アンマウント時クリーンアップ
   useEffect(() => stopNodes, [stopNodes])
 
-  return { type, setType, volume, setVolume }
+  return { type, setType: selectType, volume, setVolume }
 }
