@@ -19,6 +19,8 @@ function Room() {
   const { milestone, clearMilestone } = useStats()
   const [showNicknameModal, setShowNicknameModal] = useState(false)
   const { mySeatId, handleSeatClick, leaveCurrentSeat, claiming, error, clearError } = useSeatClaim()
+  // モバイル用タブ: 'floor' | 'chat'
+  const [mobileTab, setMobileTab] = useState<'floor' | 'chat'>('floor')
 
   if (loading) {
     return (
@@ -59,13 +61,40 @@ function Room() {
         </div>
       )}
 
+      {/* モバイル用タブバー（md以上では非表示） */}
+      <div className="flex md:hidden border-b border-gray-700 flex-none">
+        <button
+          className={`flex-1 py-2 text-sm font-medium transition-colors ${
+            mobileTab === 'floor'
+              ? 'text-white border-b-2 border-blue-500'
+              : 'text-gray-500'
+          }`}
+          onClick={() => setMobileTab('floor')}
+        >
+          🪑 フロアマップ
+        </button>
+        <button
+          className={`flex-1 py-2 text-sm font-medium transition-colors ${
+            mobileTab === 'chat'
+              ? 'text-white border-b-2 border-blue-500'
+              : 'text-gray-500'
+          }`}
+          onClick={() => setMobileTab('chat')}
+        >
+          💬 活動ログ
+        </button>
+      </div>
+
       <div className="flex flex-1 overflow-hidden">
-        {/* メイン：フロアマップ */}
-        <div className="flex-1 flex flex-col p-4 overflow-auto">
+        {/* メイン：フロアマップ（モバイルではタブ選択時のみ表示） */}
+        <div className={`
+          flex-1 flex flex-col p-4 overflow-auto
+          ${mobileTab === 'chat' ? 'hidden md:flex' : 'flex'}
+        `}>
           {/* BGMプレイヤー */}
           <div className="mb-3 flex justify-between items-center">
             <BGMPlayer playlistId={BGM_PLAYLIST_ID} />
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 hidden sm:block">
               席をクリックして着席 · もう一度クリックで退室
             </div>
           </div>
@@ -92,9 +121,15 @@ function Room() {
           )}
         </div>
 
-        {/* サイドバー：活動ログ */}
-        <div className="w-64 flex-none border-l border-gray-700 flex flex-col"
-             style={{ backgroundColor: '#111827' }}>
+        {/* サイドバー：活動ログ（モバイルではタブ選択時のみ表示） */}
+        <div
+          className={`
+            flex-none border-gray-700 flex flex-col
+            w-full md:w-64 md:border-l
+            ${mobileTab === 'floor' ? 'hidden md:flex' : 'flex'}
+          `}
+          style={{ backgroundColor: '#111827' }}
+        >
           <ChatFeed />
           {/* Google AdSense（チャット下・集中エリア外） */}
           <AdBanner
