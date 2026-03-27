@@ -26,6 +26,8 @@ export interface ChatEvent {
   message: string
   timestamp: number
   type: 'join' | 'milestone' | 'pomodoro'
+  // アフィリエイトリンク（任意）
+  affiliate?: { emoji: string; label: string; url: string }
 }
 
 export type PomodoroState = 'idle' | 'work' | 'break'

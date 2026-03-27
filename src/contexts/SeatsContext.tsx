@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { SeatDoc, ChatEvent, MILESTONE_INTERVALS_MS } from '../types'
 import { subscribeToSeats } from '../firebase/seats'
+import { getMilestoneKey, pickProduct } from '../config/affiliates'
 
 // 60秒以内に3回以上着席したUIDはチャットに表示しない
 const SPAM_WINDOW_MS = 60_000
@@ -86,11 +87,15 @@ export function SeatsProvider({ children }: { children: React.ReactNode }) {
                 ? `🔥 ${seat.nickname} さん、1時間継続！その調子です！`
                 : `💪 ${seat.nickname} さん、${hours}時間作業継続！素晴らしい集中力です！`
             }
+            // マイルストーンにアフィリエイト商品をランダム添付
+            const milestoneKey = getMilestoneKey(ms)
+            const product = pickProduct(milestoneKey)
             setChatEvents((prev) => [...prev.slice(-49), {
               id: `milestone-${seatId}-${ms}`,
               message: msg,
               timestamp: now,
               type: 'milestone',
+              affiliate: product ?? undefined,
             }])
           }
         })

@@ -9,6 +9,7 @@ import PomodoroTimer from './components/pomodoro/PomodoroTimer'
 import BGMPlayer from './components/bgm/BGMPlayer'
 import NicknameModal from './components/modals/NicknameModal'
 import MilestoneOverlay from './components/stats/MilestoneOverlay'
+import AdBanner from './components/ads/AdBanner'
 import { useSeatClaim } from './hooks/useSeatClaim'
 
 const BGM_PLAYLIST_ID = import.meta.env.VITE_BGM_PLAYLIST_ID ?? 'PLxxxxxx'
@@ -92,9 +93,15 @@ function Room() {
         </div>
 
         {/* サイドバー：活動ログ */}
-        <div className="w-64 flex-none bg-gray-850 border-l border-gray-700 flex flex-col"
+        <div className="w-64 flex-none border-l border-gray-700 flex flex-col"
              style={{ backgroundColor: '#111827' }}>
           <ChatFeed />
+          {/* Google AdSense（チャット下・集中エリア外） */}
+          <AdBanner
+            slot={import.meta.env.VITE_ADSENSE_SLOT_SIDEBAR ?? 'YOUR_SLOT_ID'}
+            format="rectangle"
+            className="border-t border-gray-800 p-1"
+          />
         </div>
       </div>
     </div>
