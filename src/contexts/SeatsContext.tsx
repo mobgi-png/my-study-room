@@ -38,11 +38,36 @@ export function SeatsProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    let isFirstSnapshot = true
+
     const unsub = subscribeToSeats((newSeats) => {
       const prev = prevSeatsRef.current
+
+      // 初回スナップショットは「現在の状態」として記録するだけ
+      // （既存の全員を入室扱いにしない）
+      if (isFirstSnapshot) {
+        isFirstSnapshot = false
+
+        // 初回時点で既に達成済みのマイルストーンを全て記録し、
+        // 後で重複発火しないようにする
+        const now = Date.now()
+        newSeats.forEach((seat, seatId) => {
+          const elapsed = now - seat.satAt
+          MILESTONE_INTERVALS_MS.forEach((ms) => {
+            if (elapsed >= ms) {
+              announcedMilestonesRef.current.add(`${seatId}-${ms}`)
+            }
+          })
+        })
+
+        prevSeatsRef.current = newSeats
+        setSeats(new Map(newSeats))
+        return
+      }
+
       const newEvents: ChatEvent[] = []
 
-      // 新着席を検出
+      // 新着席を検出（2回目以降のスナップショットのみ）
       newSeats.forEach((seat, seatId) => {
         if (!prev.has(seatId)) {
           if (!isSpamming(seat.occupantUid)) {
