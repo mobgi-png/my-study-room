@@ -12,13 +12,13 @@ export default function ChatFeed() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-3 py-2 border-b border-gray-700">
-        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">📢 活動ログ</span>
+      <div className="px-3 py-2" style={{ borderBottom: '1px solid rgba(139,99,64,0.18)' }}>
+        <span className="text-xs font-medium uppercase tracking-wider" style={{ color: 'rgba(139,99,64,0.7)' }}>📢 活動ログ</span>
       </div>
       <div className="flex-1 overflow-y-auto chat-scroll px-3 py-2 space-y-1">
         {chatEvents.length === 0 && (
-          <p className="text-xs text-gray-600 text-center py-4">
-            誰かが着席するとメッセージが表示されます
+          <p className="text-xs text-center py-4" style={{ color: 'rgba(139,99,64,0.4)' }}>
+            誰かが入室するとログが流れます
           </p>
         )}
         {chatEvents.map((event) => (

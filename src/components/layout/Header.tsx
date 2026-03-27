@@ -49,11 +49,12 @@ export default function Header({ onLeave, isSeated }: HeaderProps) {
 
   return (
     <>
-      <header className="flex items-center justify-between px-4 py-2.5 bg-gray-900 border-b border-gray-700">
+      <header className="flex items-center justify-between px-4 py-2.5 border-b" style={{ backgroundColor: '#1A1208', borderColor: 'rgba(139,99,64,0.25)' }}>
         <div className="flex items-center gap-2 flex-wrap">
           {/* タイトル（5回クリックで管理者認証） */}
           <span
-            className="text-lg font-bold text-white cursor-default select-none"
+            className="text-lg font-bold cursor-default select-none"
+            style={{ color: '#E8DCC8' }}
             onClick={handleTitleClick}
           >
             📚 もくもく自習室
@@ -61,15 +62,15 @@ export default function Header({ onLeave, isSeated }: HeaderProps) {
           </span>
 
           {/* 在室数 */}
-          <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full">
+          <span className="text-xs px-2 py-0.5 rounded-full" style={{ color: '#A09070', backgroundColor: 'rgba(42,28,14,0.8)', border: '1px solid rgba(139,99,64,0.25)' }}>
             🟢 {onlineCount}人在室
           </span>
 
           {/* 累計統計 */}
-          <span className="text-xs text-gray-500 bg-gray-800/60 px-2 py-0.5 rounded-full">
+          <span className="text-xs px-2 py-0.5 rounded-full" style={{ color: '#806850', backgroundColor: 'rgba(42,28,14,0.5)', border: '1px solid rgba(139,99,64,0.15)' }}>
             👥 累計 {stats.totalVisitors.toLocaleString()}人
           </span>
-          <span className="text-xs text-gray-500 bg-gray-800/60 px-2 py-0.5 rounded-full">
+          <span className="text-xs px-2 py-0.5 rounded-full" style={{ color: '#806850', backgroundColor: 'rgba(42,28,14,0.5)', border: '1px solid rgba(139,99,64,0.15)' }}>
             ⏳ 累計 {totalHours.toLocaleString()}時間
           </span>
         </div>
@@ -77,7 +78,8 @@ export default function Header({ onLeave, isSeated }: HeaderProps) {
         {isSeated && (
           <button
             onClick={onLeave}
-            className="text-sm text-gray-400 hover:text-red-400 transition-colors flex-none ml-2"
+            className="text-sm transition-colors flex-none ml-2 hover:text-red-400"
+            style={{ color: '#806850' }}
           >
             退室する
           </button>
