@@ -14,14 +14,15 @@ function formatDuration(minutes: number): string {
 }
 
 export default function ShareModal({ minutes, onClose }: ShareModalProps) {
-  const channelUrl = import.meta.env.VITE_YOUTUBE_CHANNEL_URL ?? ''
+  const siteUrl = 'https://my-study-room-app.vercel.app'
   const duration = formatDuration(minutes)
 
   const tweetText = [
     `✏️ ${duration}勉強しました！`,
+    `無料のオンライン自習室で一緒に勉強しよう📚`,
     `#もくもく自習室 #勉強垢`,
-    channelUrl,
-  ].filter(Boolean).join('\n')
+    siteUrl,
+  ].join('\n')
 
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
 
