@@ -57,7 +57,7 @@ export default function Header({ onLeave, isSeated }: HeaderProps) {
             onClick={handleTitleClick}
           >
             📚 もくもく自習室
-            {isAdmin && <span className="ml-1.5 text-sm font-bold text-red-400">も</span>}
+            {isAdmin && <span className="ml-1.5 text-sm font-bold text-white">も</span>}
           </span>
 
           {/* 在室数 */}

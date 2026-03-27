@@ -27,7 +27,7 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
 
   // アイコン決定（管理者は「も」文字、その他は絵文字）
   const adminIconEl = (
-    <span style={{ fontFamily: 'sans-serif', fontWeight: 700, fontSize: '1.4rem', color: '#fff', lineHeight: 1 }}>
+    <span style={{ fontFamily: 'sans-serif', fontWeight: 700, fontSize: '1.4rem', color: '#000', lineHeight: 1 }}>
       も
     </span>
   )
@@ -40,9 +40,9 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
   // チェアボックスのスタイル
   let boxStyle = 'bg-gray-600 hover:bg-gray-500 hover:shadow-lg hover:shadow-black/40'
   if (isAdmin && isMine) {
-    boxStyle = 'ring-2 ring-red-400 bg-red-800 shadow-red-900/60'
+    boxStyle = 'ring-2 ring-gray-400 bg-white shadow-white/20'
   } else if (isAdmin) {
-    boxStyle = 'ring-2 ring-red-500 bg-red-900/80'
+    boxStyle = 'ring-2 ring-gray-300 bg-white opacity-95'
   } else if (isMine) {
     boxStyle = 'ring-2 ring-yellow-400 bg-yellow-800 shadow-yellow-900/50'
   } else if (isClaiming) {
@@ -69,7 +69,7 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
     >
       {/* 管理者バッジ（上部） */}
       {isAdmin && (
-        <span className="text-xs text-red-400 leading-none font-bold">管理者</span>
+        <span className="text-xs text-gray-300 leading-none font-bold">管理者</span>
       )}
 
       {/* チェアボックス */}
