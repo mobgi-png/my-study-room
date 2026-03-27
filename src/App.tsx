@@ -41,7 +41,7 @@ function Room() {
   }
 
   return (
-    <div className="flex flex-col h-screen" style={{ backgroundColor: '#0F0C08' }}>
+    <div className="flex flex-col h-screen bg-gray-900">
       {showNicknameModal && <NicknameModal onDone={() => setShowNicknameModal(false)} />}
 
       {/* マイルストーン花火 */}
@@ -65,7 +65,7 @@ function Room() {
           {/* BGMプレイヤー */}
           <div className="mb-3 flex justify-between items-center">
             <BGMPlayer playlistId={BGM_PLAYLIST_ID} />
-            <div className="text-xs" style={{ color: 'rgba(139,99,64,0.6)' }}>
+            <div className="text-xs text-gray-500">
               席をクリックして着席 · もう一度クリックで退室
             </div>
           </div>
@@ -74,11 +74,11 @@ function Room() {
 
           {/* 自分の席パネル */}
           {mySeatId && (
-            <div className="mt-4 rounded-xl p-4" style={{ backgroundColor: '#1A1208', border: '1px solid rgba(139,99,64,0.22)' }}>
+            <div className="mt-4 bg-gray-800 rounded-xl p-4 border border-gray-700">
               <div className="flex items-start gap-6">
                 <div>
-                  <p className="text-sm mb-1" style={{ color: '#806850' }}>⭐ あなたの席</p>
-                  <p className="font-medium" style={{ color: '#E8DCC8' }}>{nickname}</p>
+                  <p className="text-sm text-gray-400 mb-1">⭐ あなたの席</p>
+                  <p className="text-white font-medium">{nickname}</p>
                 </div>
                 <PomodoroTimer seatId={mySeatId} />
               </div>
@@ -93,8 +93,8 @@ function Room() {
         </div>
 
         {/* サイドバー：活動ログ */}
-        <div className="w-64 flex-none flex flex-col"
-             style={{ backgroundColor: '#110D07', borderLeft: '1px solid rgba(139,99,64,0.18)' }}>
+        <div className="w-64 flex-none border-l border-gray-700 flex flex-col"
+             style={{ backgroundColor: '#111827' }}>
           <ChatFeed />
           {/* Google AdSense（チャット下・集中エリア外） */}
           <AdBanner

@@ -90,21 +90,19 @@ export default function BGMPlayer({ playlistId }: BGMPlayerProps) {
   }
 
   return (
-    <div className="flex items-center gap-2 rounded-lg px-3 py-2" style={{ backgroundColor: '#1E1408', border: '1px solid rgba(139,99,64,0.22)' }}>
-      <span className="text-xs" style={{ color: 'rgba(139,99,64,0.7)' }}>🎵 BGM</span>
+    <div className="flex items-center gap-2 bg-gray-800 rounded-lg px-3 py-2">
+      <span className="text-xs text-gray-400">🎵 BGM</span>
       <div ref={containerRef} className="hidden" />
       <button
         onClick={togglePlay}
-        className="transition-colors text-sm hover:text-yellow-400"
-        style={{ color: '#C8A87A' }}
+        className="text-white hover:text-yellow-400 transition-colors text-sm"
         title={isPlaying ? '一時停止' : '再生'}
       >
         {isPlaying ? '⏸' : '▶️'}
       </button>
       <button
         onClick={handleNext}
-        className="transition-colors text-sm hover:text-yellow-200"
-        style={{ color: 'rgba(139,99,64,0.6)' }}
+        className="text-gray-400 hover:text-white transition-colors text-sm"
         title="次の曲"
       >
         ⏭

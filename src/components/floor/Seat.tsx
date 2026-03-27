@@ -37,36 +37,18 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
   else if (isMine) iconEl = '⭐'
   else if (isOccupied) iconEl = '👤'
 
-  // チェアボックスのスタイル（温かみのある木調）
-  let boxStyle = ''
-  let boxInline: React.CSSProperties = {}
-
+  // チェアボックスのスタイル
+  let boxStyle = 'bg-gray-600 hover:bg-gray-500 hover:shadow-lg hover:shadow-black/40'
   if (isAdmin && isMine) {
-    boxStyle = 'ring-2 ring-gray-300'
-    boxInline = { background: '#fff', boxShadow: '0 0 12px rgba(255,255,255,0.15)' }
+    boxStyle = 'ring-2 ring-gray-400 bg-white shadow-white/20'
   } else if (isAdmin) {
-    boxStyle = 'ring-2 ring-gray-400'
-    boxInline = { background: '#f5f5f5', opacity: 0.95 }
+    boxStyle = 'ring-2 ring-gray-300 bg-white opacity-95'
   } else if (isMine) {
-    boxStyle = 'ring-2'
-    boxInline = {
-      background: 'linear-gradient(135deg, #3D2A0A, #2E1E06)',
-      boxShadow: '0 0 14px rgba(200,150,46,0.3)',
-      outline: '2px solid #C8962E',
-      outlineOffset: '1px',
-    }
+    boxStyle = 'ring-2 ring-yellow-400 bg-yellow-800 shadow-yellow-900/50'
   } else if (isClaiming) {
-    boxStyle = 'animate-pulse'
-    boxInline = { background: 'linear-gradient(135deg, #1B3A6B, #0F2347)' }
+    boxStyle = 'bg-blue-700 animate-pulse'
   } else if (isOccupied) {
-    boxInline = { background: 'linear-gradient(135deg, #1E1510, #181008)', opacity: 0.9 }
-  } else {
-    // 空席：木調
-    boxInline = {
-      background: 'linear-gradient(135deg, #2A1C0E, #1E1408)',
-      border: '1px solid rgba(139,99,64,0.35)',
-    }
-    boxStyle = 'hover:brightness-125 transition-all'
+    boxStyle = 'bg-gray-700 opacity-80'
   }
 
   const titleText = isMine
@@ -91,10 +73,11 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
       )}
 
       {/* チェアボックス */}
-      <div
-        className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl shadow-md transition-all duration-200 ${boxStyle} ${pomodoroActive ? 'outline outline-1 outline-red-500/70' : ''}`}
-        style={boxInline}
-      >
+      <div className={`
+        w-11 h-11 rounded-xl flex items-center justify-center text-xl shadow-md transition-all duration-200
+        ${boxStyle}
+        ${pomodoroActive ? 'ring-1 ring-red-500' : ''}
+      `}>
         {iconEl}
       </div>
 
@@ -102,7 +85,7 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
       {isOccupied && occupant && (
         <div className="flex flex-col items-center mt-0.5">
           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: nickColor(occupant.nickname) }} />
-          <span className="text-xs max-w-16 truncate leading-tight mt-0.5" style={{ color: '#C8A87A' }}>
+          <span className="text-xs text-gray-300 max-w-16 truncate leading-tight mt-0.5">
             {occupant.nickname}
           </span>
           <SeatDurationBadge satAt={occupant.satAt} />
@@ -116,7 +99,7 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
 
       {/* 空席ラベル */}
       {!isOccupied && (
-        <span className="text-xs leading-none" style={{ color: 'rgba(139,99,64,0.5)' }}>{config.label}</span>
+        <span className="text-xs text-gray-500 leading-none">{config.label}</span>
       )}
     </div>
   )
