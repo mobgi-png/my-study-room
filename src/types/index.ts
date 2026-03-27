@@ -25,8 +25,8 @@ export interface ChatEvent {
   id: string
   message: string
   timestamp: number
-  type: 'join' | 'milestone' | 'pomodoro'
-  // アフィリエイトリンク（任意）
+  type: 'join' | 'milestone' | 'pomodoro' | 'reaction'
+  nickname?: string // join: 入室者のニックネーム / reaction: 送り先
   affiliate?: { emoji: string; label: string; url: string }
 }
 

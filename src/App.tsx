@@ -7,6 +7,7 @@ import FloorPlan from './components/floor/FloorPlan'
 import ChatFeed from './components/chat/ChatFeed'
 import PomodoroTimer from './components/pomodoro/PomodoroTimer'
 import BGMPlayer from './components/bgm/BGMPlayer'
+import AmbientSoundControl from './components/bgm/AmbientSoundControl'
 import NicknameModal from './components/modals/NicknameModal'
 import MilestoneOverlay from './components/stats/MilestoneOverlay'
 import AdBanner from './components/ads/AdBanner'
@@ -97,9 +98,12 @@ function Room() {
           flex-1 flex flex-col p-4 overflow-auto
           ${mobileTab === 'chat' ? 'hidden md:flex' : 'flex'}
         `}>
-          {/* BGMプレイヤー */}
-          <div className="mb-3 flex justify-between items-center">
-            <BGMPlayer playlistId={BGM_PLAYLIST_ID} />
+          {/* BGM / 環境音コントロール */}
+          <div className="mb-3 flex flex-wrap gap-2 items-center justify-between">
+            <div className="flex flex-wrap gap-2">
+              <BGMPlayer playlistId={BGM_PLAYLIST_ID} />
+              <AmbientSoundControl />
+            </div>
             <div className="text-xs text-gray-500 hidden sm:block">
               席をクリックして着席 · もう一度クリックで退室
             </div>

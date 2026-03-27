@@ -3,6 +3,7 @@ import { SeatDoc, ChatEvent, MILESTONE_INTERVALS_MS, getLevel, UserLevel } from 
 import { subscribeToSeats } from '../firebase/seats'
 import { getMilestoneKey, pickProduct } from '../config/affiliates'
 import { getUserTotalMinutes } from '../firebase/users'
+import { subscribeToRecentReactions } from '../firebase/reactions'
 
 // 60秒以内に3回以上着席したUIDはチャットに表示しない
 const SPAM_WINDOW_MS = 60_000
@@ -81,6 +82,7 @@ export function SeatsProvider({ children }: { children: React.ReactNode }) {
               message: `🪑 ${seat.nickname} さんが入室しました！`,
               timestamp: Date.now(),
               type: 'join',
+              nickname: seat.nickname,
             })
           }
         }
@@ -94,6 +96,30 @@ export function SeatsProvider({ children }: { children: React.ReactNode }) {
       }
     })
 
+    return unsub
+  }, [])
+
+  // リアクション購読
+  useEffect(() => {
+    const knownIds = new Set<string>()
+    const unsub = subscribeToRecentReactions((reactions) => {
+      const newEvents: ChatEvent[] = []
+      reactions.forEach((r) => {
+        if (!knownIds.has(r.id)) {
+          knownIds.add(r.id)
+          newEvents.push({
+            id: `reaction-${r.id}`,
+            message: `${r.emoji} ${r.fromNickname} → ${r.toNickname}`,
+            timestamp: r.timestamp,
+            type: 'reaction',
+            nickname: r.toNickname,
+          })
+        }
+      })
+      if (newEvents.length > 0) {
+        setChatEvents((prev) => [...prev.slice(-49), ...newEvents].sort((a, b) => a.timestamp - b.timestamp))
+      }
+    })
     return unsub
   }, [])
 
