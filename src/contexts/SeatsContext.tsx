@@ -47,7 +47,7 @@ export function SeatsProvider({ children }: { children: React.ReactNode }) {
           if (!isSpamming(seat.occupantUid)) {
             newEvents.push({
               id: `join-${seatId}-${Date.now()}`,
-              message: `🪑 ${seat.nickname}さんが着席しました！`,
+              message: `🪑 ${seat.nickname} さんが入室しました！`,
               timestamp: Date.now(),
               type: 'join',
             })
@@ -80,11 +80,11 @@ export function SeatsProvider({ children }: { children: React.ReactNode }) {
             const minutes = (ms % (60 * 60 * 1000)) / (60 * 1000)
             let msg: string
             if (minutes > 0) {
-              msg = `⏱ ${seat.nickname}さんが${hours > 0 ? `${hours}時間` : ''}${minutes}分作業中！`
+              msg = `⏱ ${seat.nickname} さん、${hours > 0 ? `${hours}時間` : ''}${minutes}分達成！好調ですね！`
             } else {
               msg = hours === 1
-                ? `🔥 ${seat.nickname}さんが1時間継続中！すごい！`
-                : `💪 ${seat.nickname}さんが${hours}時間作業中！！`
+                ? `🔥 ${seat.nickname} さん、1時間継続！その調子です！`
+                : `💪 ${seat.nickname} さん、${hours}時間作業継続！素晴らしい集中力です！`
             }
             setChatEvents((prev) => [...prev.slice(-49), {
               id: `milestone-${seatId}-${ms}`,

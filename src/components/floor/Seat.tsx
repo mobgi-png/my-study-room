@@ -1,6 +1,7 @@
 import React from 'react'
 import { SeatConfig, SeatDoc } from '../../types'
 import SeatDurationBadge from './SeatDurationBadge'
+import { useStats } from '../../contexts/StatsContext'
 
 interface SeatProps {
   config: SeatConfig
@@ -19,8 +20,40 @@ function nickColor(name: string): string {
 }
 
 export default function Seat({ config, occupant, isMine, isOccupied, isClaiming, onClick }: SeatProps) {
+  const { stats } = useStats()
+  const isAdmin = !!occupant && stats.adminUids.includes(occupant.occupantUid)
   const pomodoroActive = occupant?.pomodoroMode === 'work'
   const isClickable = !isOccupied || isMine
+
+  // アイコン決定
+  let icon = '🪑'
+  if (isClaiming) icon = '⏳'
+  else if (isMine && isAdmin) icon = '👑'
+  else if (isMine) icon = '⭐'
+  else if (isAdmin) icon = '👑'
+  else if (isOccupied) icon = '👤'
+
+  // チェアボックスのスタイル
+  let boxStyle = 'bg-gray-600 hover:bg-gray-500 hover:shadow-lg hover:shadow-black/40'
+  if (isMine && isAdmin) {
+    boxStyle = 'ring-2 ring-yellow-300 bg-purple-800 shadow-purple-900/50'
+  } else if (isMine) {
+    boxStyle = 'ring-2 ring-yellow-400 bg-yellow-800 shadow-yellow-900/50'
+  } else if (isClaiming) {
+    boxStyle = 'bg-blue-700 animate-pulse'
+  } else if (isAdmin) {
+    boxStyle = 'ring-2 ring-purple-400 bg-purple-900/80 opacity-90'
+  } else if (isOccupied) {
+    boxStyle = 'bg-gray-700 opacity-80'
+  }
+
+  const titleText = isMine
+    ? 'クリックで退室'
+    : isAdmin
+    ? `👑 管理者: ${occupant?.nickname}`
+    : isOccupied
+    ? `${occupant?.nickname} さんが作業中`
+    : `${config.label} — クリックして着席`
 
   return (
     <div
@@ -28,21 +61,20 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
         ${isClickable ? 'cursor-pointer hover:scale-110 active:scale-95' : 'cursor-not-allowed'}
       `}
       onClick={isClickable ? onClick : undefined}
-      title={isMine ? 'クリックで退席' : isOccupied ? `${occupant?.nickname}が着席中` : `${config.label} - クリックして着席`}
+      title={titleText}
     >
-      {/* Chair box */}
+      {/* 管理者バッジ（上部） */}
+      {isAdmin && (
+        <span className="text-xs text-purple-300 leading-none font-medium">管理者</span>
+      )}
+
+      {/* チェアボックス */}
       <div className={`
         w-11 h-11 rounded-xl flex items-center justify-center text-xl shadow-md transition-all duration-200
-        ${isMine
-          ? 'ring-2 ring-yellow-400 bg-yellow-800 shadow-yellow-900/50'
-          : isClaiming
-          ? 'bg-blue-700 animate-pulse'
-          : isOccupied
-          ? 'bg-gray-700 opacity-80'
-          : 'bg-gray-600 hover:bg-gray-500 hover:shadow-lg hover:shadow-black/40'}
+        ${boxStyle}
         ${pomodoroActive ? 'ring-1 ring-red-500' : ''}
       `}>
-        {isClaiming ? '⏳' : isMine ? '⭐' : isOccupied ? '👤' : '🪑'}
+        {icon}
       </div>
 
       {/* 着席者情報 */}

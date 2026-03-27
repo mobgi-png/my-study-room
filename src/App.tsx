@@ -1,18 +1,21 @@
 import React, { useState } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { SeatsProvider } from './contexts/SeatsContext'
+import { StatsProvider, useStats } from './contexts/StatsContext'
 import Header from './components/layout/Header'
 import FloorPlan from './components/floor/FloorPlan'
 import ChatFeed from './components/chat/ChatFeed'
 import PomodoroTimer from './components/pomodoro/PomodoroTimer'
 import BGMPlayer from './components/bgm/BGMPlayer'
 import NicknameModal from './components/modals/NicknameModal'
+import MilestoneOverlay from './components/stats/MilestoneOverlay'
 import { useSeatClaim } from './hooks/useSeatClaim'
 
 const BGM_PLAYLIST_ID = import.meta.env.VITE_BGM_PLAYLIST_ID ?? 'PLxxxxxx'
 
 function Room() {
   const { nickname, loading } = useAuth()
+  const { milestone, clearMilestone } = useStats()
   const [showNicknameModal, setShowNicknameModal] = useState(false)
   const { mySeatId, handleSeatClick, leaveCurrentSeat, claiming, error, clearError } = useSeatClaim()
 
@@ -40,6 +43,11 @@ function Room() {
     <div className="flex flex-col h-screen bg-gray-900">
       {showNicknameModal && <NicknameModal onDone={() => setShowNicknameModal(false)} />}
 
+      {/* マイルストーン花火 */}
+      {milestone && (
+        <MilestoneOverlay event={milestone} onDone={clearMilestone} />
+      )}
+
       <Header isSeated={!!mySeatId} onLeave={leaveCurrentSeat} />
 
       {/* エラートースト */}
@@ -51,19 +59,19 @@ function Room() {
       )}
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Main: floor plan */}
+        {/* メイン：フロアマップ */}
         <div className="flex-1 flex flex-col p-4 overflow-auto">
-          {/* BGM player */}
+          {/* BGMプレイヤー */}
           <div className="mb-3 flex justify-between items-center">
             <BGMPlayer playlistId={BGM_PLAYLIST_ID} />
             <div className="text-xs text-gray-500">
-              クリックして着席 ・ もう一度クリックで退席
+              席をクリックして着席 · もう一度クリックで退室
             </div>
           </div>
 
           <FloorPlan mySeatId={mySeatId} claiming={claiming} onSeatClick={handleSeatClickWithCheck} />
 
-          {/* My seat panel */}
+          {/* 自分の席パネル */}
           {mySeatId && (
             <div className="mt-4 bg-gray-800 rounded-xl p-4 border border-gray-700">
               <div className="flex items-start gap-6">
@@ -78,12 +86,12 @@ function Room() {
 
           {!mySeatId && (
             <div className="mt-4 text-center text-gray-500 text-sm">
-              🪑 空いている席をクリックして着席しましょう！
+              空いている席をクリックして着席しましょう！🪑
             </div>
           )}
         </div>
 
-        {/* Sidebar: chat */}
+        {/* サイドバー：活動ログ */}
         <div className="w-64 flex-none bg-gray-850 border-l border-gray-700 flex flex-col"
              style={{ backgroundColor: '#111827' }}>
           <ChatFeed />
@@ -96,9 +104,11 @@ function Room() {
 export default function App() {
   return (
     <AuthProvider>
-      <SeatsProvider>
-        <Room />
-      </SeatsProvider>
+      <StatsProvider>
+        <SeatsProvider>
+          <Room />
+        </SeatsProvider>
+      </StatsProvider>
     </AuthProvider>
   )
 }
