@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
-import { claimSeat, leaveSeat, findSeatByUid, leaveAllSeatsForUid } from '../firebase/seats'
+import { claimSeat, leaveSeat, findSeatByUid, leaveAllSeatsForUid, updateSeatNickname } from '../firebase/seats'
 import { incrementVisitorCount, addStudyMinutes } from '../firebase/stats'
 import { useAuth } from '../contexts/AuthContext'
 import { useSeats } from '../contexts/SeatsContext'
+import { useStats } from '../contexts/StatsContext'
 
 export function useSeatClaim() {
   const { user, nickname } = useAuth()
   const { seats } = useSeats()
+  const { stats } = useStats()
   const [mySeatId, setMySeatId] = useState<string | null>(null)
   const [claiming, setClaiming] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -24,6 +26,12 @@ export function useSeatClaim() {
       if (seatId) setMySeatId(seatId)
     }).catch(console.error)
   }, [user])
+
+  // ニックネームが変わったら着席中の席のドキュメントも更新
+  useEffect(() => {
+    if (!mySeatId || !nickname) return
+    updateSeatNickname(mySeatId, nickname).catch(console.error)
+  }, [nickname, mySeatId])
 
   // ブラウザを閉じる / リロード時に自動退席
   useEffect(() => {
@@ -43,6 +51,12 @@ export function useSeatClaim() {
   async function handleSeatClick(seatId: string) {
     if (!user || !nickname || claiming) return
     setError(null)
+
+    // BANされているか確認
+    if (stats.bannedUids.includes(user.uid)) {
+      setError('この自習室への入室が制限されています。')
+      return
+    }
 
     // 自分の席をクリック → 退席
     if (mySeatId === seatId) {

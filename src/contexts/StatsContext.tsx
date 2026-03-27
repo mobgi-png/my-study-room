@@ -15,7 +15,7 @@ interface StatsContextValue {
 }
 
 const StatsContext = createContext<StatsContextValue>({
-  stats: { totalVisitors: 0, totalMinutes: 0, adminUids: [] },
+  stats: { totalVisitors: 0, totalMinutes: 0, adminUids: [], bannedUids: [] },
   milestone: null,
   clearMilestone: () => {},
 })
@@ -23,7 +23,7 @@ const StatsContext = createContext<StatsContextValue>({
 const MILESTONE_UNIT = 1000
 
 export function StatsProvider({ children }: { children: React.ReactNode }) {
-  const [stats, setStats] = useState<RoomStats>({ totalVisitors: 0, totalMinutes: 0, adminUids: [] })
+  const [stats, setStats] = useState<RoomStats>({ totalVisitors: 0, totalMinutes: 0, adminUids: [], bannedUids: [] })
   const [milestone, setMilestone] = useState<MilestoneEvent | null>(null)
   const prevRef = useRef<RoomStats | null>(null)
   const initializedRef = useRef(false)

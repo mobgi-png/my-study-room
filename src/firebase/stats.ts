@@ -1,5 +1,5 @@
 import {
-  doc, onSnapshot, setDoc, updateDoc, getDoc, arrayUnion,
+  doc, onSnapshot, setDoc, updateDoc, getDoc, arrayUnion, arrayRemove,
   increment as fsIncrement,
 } from 'firebase/firestore'
 import { db } from './config'
@@ -8,6 +8,7 @@ export interface RoomStats {
   totalVisitors: number
   totalMinutes: number
   adminUids: string[]
+  bannedUids: string[]
 }
 
 const statsRef = () => doc(db, 'config', 'room')
@@ -18,7 +19,7 @@ export function subscribeToStats(callback: (s: RoomStats) => void): () => void {
     statsRef(),
     (snap) => {
       if (!snap.exists()) {
-        callback({ totalVisitors: 0, totalMinutes: 0, adminUids: [] })
+        callback({ totalVisitors: 0, totalMinutes: 0, adminUids: [], bannedUids: [] })
         return
       }
       const d = snap.data()
@@ -26,11 +27,12 @@ export function subscribeToStats(callback: (s: RoomStats) => void): () => void {
         totalVisitors: d.totalVisitors ?? 0,
         totalMinutes: d.totalMinutes ?? 0,
         adminUids: d.adminUids ?? [],
+        bannedUids: d.bannedUids ?? [],
       })
     },
     () => {
       // 権限エラーなどは無視してデフォルト値を返す
-      callback({ totalVisitors: 0, totalMinutes: 0, adminUids: [] })
+      callback({ totalVisitors: 0, totalMinutes: 0, adminUids: [], bannedUids: [] })
     },
   )
 }
@@ -60,6 +62,25 @@ export async function addStudyMinutes(minutes: number): Promise<void> {
     await updateDoc(statsRef(), { totalMinutes: fsIncrement(Math.round(minutes)) })
   } catch (e) {
     console.error('addStudyMinutes error:', e)
+  }
+}
+
+/** ユーザーをBANする（管理者のみ呼び出す） */
+export async function banUser(uid: string): Promise<void> {
+  try {
+    await ensureStatsDoc()
+    await updateDoc(statsRef(), { bannedUids: arrayUnion(uid) })
+  } catch (e) {
+    console.error('banUser error:', e)
+  }
+}
+
+/** BANを解除する */
+export async function unbanUser(uid: string): Promise<void> {
+  try {
+    await updateDoc(statsRef(), { bannedUids: arrayRemove(uid) })
+  } catch (e) {
+    console.error('unbanUser error:', e)
   }
 }
 

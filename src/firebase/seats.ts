@@ -66,6 +66,12 @@ export async function leaveAllSeatsForUid(uid: string): Promise<void> {
   await Promise.all(snapshot.docs.map((d) => deleteDoc(d.ref)))
 }
 
+// 着席中のニックネームを更新する
+export async function updateSeatNickname(seatId: string, nickname: string): Promise<void> {
+  const { updateDoc } = await import('firebase/firestore')
+  await updateDoc(doc(db, SEATS_COLLECTION, seatId), { nickname })
+}
+
 export async function updatePomodoroState(
   seatId: string,
   mode: 'work' | 'break' | null,

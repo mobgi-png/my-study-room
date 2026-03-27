@@ -21,6 +21,7 @@ function Room() {
   const { mySeatId, handleSeatClick, leaveCurrentSeat, claiming, error, clearError } = useSeatClaim()
   // モバイル用タブ: 'floor' | 'chat'
   const [mobileTab, setMobileTab] = useState<'floor' | 'chat'>('floor')
+  const [showRenameModal, setShowRenameModal] = useState(false)
 
   if (loading) {
     return (
@@ -45,6 +46,7 @@ function Room() {
   return (
     <div className="flex flex-col h-screen bg-gray-900">
       {showNicknameModal && <NicknameModal onDone={() => setShowNicknameModal(false)} />}
+      {showRenameModal && <NicknameModal mode="rename" onDone={() => setShowRenameModal(false)} />}
 
       {/* マイルストーン花火 */}
       {milestone && (
@@ -107,7 +109,16 @@ function Room() {
               <div className="flex items-start gap-6">
                 <div>
                   <p className="text-sm text-gray-400 mb-1">⭐ あなたの席</p>
-                  <p className="text-white font-medium">{nickname}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-white font-medium">{nickname}</p>
+                    <button
+                      onClick={() => setShowRenameModal(true)}
+                      className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                      title="名前を変更"
+                    >
+                      ✏️ 名前を変える
+                    </button>
+                  </div>
                 </div>
                 <PomodoroTimer seatId={mySeatId} />
               </div>

@@ -2,6 +2,9 @@ import React from 'react'
 import { SeatConfig, SeatDoc } from '../../types'
 import SeatDurationBadge from './SeatDurationBadge'
 import { useStats } from '../../contexts/StatsContext'
+import { useAuth } from '../../contexts/AuthContext'
+import { leaveSeat } from '../../firebase/seats'
+import { banUser } from '../../firebase/stats'
 
 interface SeatProps {
   config: SeatConfig
@@ -21,9 +24,26 @@ function nickColor(name: string): string {
 
 export default function Seat({ config, occupant, isMine, isOccupied, isClaiming, onClick }: SeatProps) {
   const { stats } = useStats()
+  const { user } = useAuth()
   const isAdmin = !!occupant && stats.adminUids.includes(occupant.occupantUid)
+  const iAmAdmin = !!user && stats.adminUids.includes(user.uid)
   const pomodoroActive = occupant?.pomodoroMode === 'work'
   const isClickable = !isOccupied || isMine
+
+  // 管理者キック処理
+  async function handleKick(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!occupant) return
+    const ok = window.confirm(`「${occupant.nickname}」さんをキックしますか？\nBANすると再入室できなくなります。`)
+    if (!ok) return
+    const doBan = window.confirm('BANしますか？（キャンセルでキックのみ）')
+    try {
+      await leaveSeat(config.id)
+      if (doBan) await banUser(occupant.occupantUid)
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   // アイコン決定（管理者は「も」文字、その他は絵文字）
   const adminIconEl = (
@@ -93,6 +113,16 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
             <span className={`text-xs ${occupant.pomodoroMode === 'work' ? 'text-red-400' : 'text-green-400'}`}>
               {occupant.pomodoroMode === 'work' ? '🍅' : '☕'}
             </span>
+          )}
+          {/* 管理者キックボタン（自分以外の席のみ） */}
+          {iAmAdmin && !isMine && (
+            <button
+              onClick={handleKick}
+              className="mt-0.5 text-xs text-gray-600 hover:text-red-400 transition-colors leading-none"
+              title="キック/BAN"
+            >
+              ✕
+            </button>
           )}
         </div>
       )}
