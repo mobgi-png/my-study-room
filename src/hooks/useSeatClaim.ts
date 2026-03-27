@@ -12,6 +12,7 @@ export function useSeatClaim() {
   const [mySeatId, setMySeatId] = useState<string | null>(null)
   const [claiming, setClaiming] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [lastStudyMinutes, setLastStudyMinutes] = useState<number | null>(null)
   const mySeatIdRef = useRef<string | null>(null)
   const hasCountedVisitRef = useRef(false)
 
@@ -64,7 +65,10 @@ export function useSeatClaim() {
       const minutes = seat ? (Date.now() - seat.satAt) / 60000 : 0
       try {
         await leaveSeat(seatId)
-        if (minutes >= 1) addStudyMinutes(minutes)
+        if (minutes >= 1) {
+          addStudyMinutes(minutes)
+          setLastStudyMinutes(Math.floor(minutes))
+        }
       } catch (e) {
         console.error(e)
       }
@@ -115,12 +119,19 @@ export function useSeatClaim() {
     const minutes = seat ? (Date.now() - seat.satAt) / 60000 : 0
     try {
       await leaveSeat(mySeatId)
-      if (minutes >= 1) addStudyMinutes(minutes)
+      if (minutes >= 1) {
+        addStudyMinutes(minutes)
+        setLastStudyMinutes(Math.floor(minutes))
+      }
     } catch (e) {
       console.error(e)
     }
     setMySeatId(null)
   }
 
-  return { mySeatId, handleSeatClick, leaveCurrentSeat, claiming, error, clearError: () => setError(null) }
+  return {
+    mySeatId, handleSeatClick, leaveCurrentSeat, claiming, error,
+    clearError: () => setError(null),
+    lastStudyMinutes, clearLastStudyMinutes: () => setLastStudyMinutes(null),
+  }
 }

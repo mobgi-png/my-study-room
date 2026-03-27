@@ -10,6 +10,7 @@ import BGMPlayer from './components/bgm/BGMPlayer'
 import NicknameModal from './components/modals/NicknameModal'
 import MilestoneOverlay from './components/stats/MilestoneOverlay'
 import AdBanner from './components/ads/AdBanner'
+import ShareModal from './components/share/ShareModal'
 import { useSeatClaim } from './hooks/useSeatClaim'
 
 const BGM_PLAYLIST_ID = import.meta.env.VITE_BGM_PLAYLIST_ID ?? 'PLxxxxxx'
@@ -18,7 +19,7 @@ function Room() {
   const { nickname, loading } = useAuth()
   const { milestone, clearMilestone } = useStats()
   const [showNicknameModal, setShowNicknameModal] = useState(false)
-  const { mySeatId, handleSeatClick, leaveCurrentSeat, claiming, error, clearError } = useSeatClaim()
+  const { mySeatId, handleSeatClick, leaveCurrentSeat, claiming, error, clearError, lastStudyMinutes, clearLastStudyMinutes } = useSeatClaim()
   // モバイル用タブ: 'floor' | 'chat'
   const [mobileTab, setMobileTab] = useState<'floor' | 'chat'>('floor')
   const [showRenameModal, setShowRenameModal] = useState(false)
@@ -47,6 +48,9 @@ function Room() {
     <div className="flex flex-col h-screen bg-gray-900">
       {showNicknameModal && <NicknameModal onDone={() => setShowNicknameModal(false)} />}
       {showRenameModal && <NicknameModal mode="rename" onDone={() => setShowRenameModal(false)} />}
+      {lastStudyMinutes !== null && (
+        <ShareModal minutes={lastStudyMinutes} onClose={clearLastStudyMinutes} />
+      )}
 
       {/* マイルストーン花火 */}
       {milestone && (
