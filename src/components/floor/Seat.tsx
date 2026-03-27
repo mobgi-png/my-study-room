@@ -25,24 +25,28 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
   const pomodoroActive = occupant?.pomodoroMode === 'work'
   const isClickable = !isOccupied || isMine
 
-  // アイコン決定
-  let icon = '🪑'
-  if (isClaiming) icon = '⏳'
-  else if (isMine && isAdmin) icon = '👑'
-  else if (isMine) icon = '⭐'
-  else if (isAdmin) icon = '👑'
-  else if (isOccupied) icon = '👤'
+  // アイコン決定（管理者は「も」文字、その他は絵文字）
+  const adminIconEl = (
+    <span style={{ fontFamily: 'sans-serif', fontWeight: 700, fontSize: '1.4rem', color: '#fff', lineHeight: 1 }}>
+      も
+    </span>
+  )
+  let iconEl: React.ReactNode = '🪑'
+  if (isClaiming) iconEl = '⏳'
+  else if (isAdmin) iconEl = adminIconEl
+  else if (isMine) iconEl = '⭐'
+  else if (isOccupied) iconEl = '👤'
 
   // チェアボックスのスタイル
   let boxStyle = 'bg-gray-600 hover:bg-gray-500 hover:shadow-lg hover:shadow-black/40'
-  if (isMine && isAdmin) {
-    boxStyle = 'ring-2 ring-yellow-300 bg-purple-800 shadow-purple-900/50'
+  if (isAdmin && isMine) {
+    boxStyle = 'ring-2 ring-red-400 bg-red-800 shadow-red-900/60'
+  } else if (isAdmin) {
+    boxStyle = 'ring-2 ring-red-500 bg-red-900/80'
   } else if (isMine) {
     boxStyle = 'ring-2 ring-yellow-400 bg-yellow-800 shadow-yellow-900/50'
   } else if (isClaiming) {
     boxStyle = 'bg-blue-700 animate-pulse'
-  } else if (isAdmin) {
-    boxStyle = 'ring-2 ring-purple-400 bg-purple-900/80 opacity-90'
   } else if (isOccupied) {
     boxStyle = 'bg-gray-700 opacity-80'
   }
@@ -65,7 +69,7 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
     >
       {/* 管理者バッジ（上部） */}
       {isAdmin && (
-        <span className="text-xs text-purple-300 leading-none font-medium">管理者</span>
+        <span className="text-xs text-red-400 leading-none font-bold">管理者</span>
       )}
 
       {/* チェアボックス */}
@@ -74,7 +78,7 @@ export default function Seat({ config, occupant, isMine, isOccupied, isClaiming,
         ${boxStyle}
         ${pomodoroActive ? 'ring-1 ring-red-500' : ''}
       `}>
-        {icon}
+        {iconEl}
       </div>
 
       {/* 着席者情報 */}

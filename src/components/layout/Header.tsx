@@ -57,7 +57,7 @@ export default function Header({ onLeave, isSeated }: HeaderProps) {
             onClick={handleTitleClick}
           >
             📚 もくもく自習室
-            {isAdmin && <span className="ml-1.5 text-sm text-purple-400">👑</span>}
+            {isAdmin && <span className="ml-1.5 text-sm font-bold text-red-400">も</span>}
           </span>
 
           {/* 在室数 */}
@@ -88,7 +88,7 @@ export default function Header({ onLeave, isSeated }: HeaderProps) {
       {showAdminModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-800 rounded-2xl p-7 w-full max-w-xs border border-purple-700 shadow-2xl">
-            <h2 className="text-white font-bold text-lg mb-1">🔐 管理者認証</h2>
+            <h2 className="text-white font-bold text-lg mb-1">🔐 管理者認証（も）</h2>
             <p className="text-gray-400 text-xs mb-4">
               管理者パスワードを入力してください。<br />
               認証後、あなたの席に王冠マークが表示されます。
