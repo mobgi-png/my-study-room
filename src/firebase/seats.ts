@@ -1,7 +1,7 @@
 import {
   collection, doc, setDoc, deleteDoc,
   onSnapshot, serverTimestamp, Timestamp,
-  QuerySnapshot, DocumentData
+  QuerySnapshot, DocumentData, query, where, getDocs
 } from 'firebase/firestore'
 import { db } from './config'
 import { SeatDoc } from '../types'
@@ -49,6 +49,21 @@ export async function claimSeat(
 
 export async function leaveSeat(seatId: string): Promise<void> {
   await deleteDoc(doc(db, SEATS_COLLECTION, seatId))
+}
+
+// UID から既存の着席を検索（リロード後の復元用）
+export async function findSeatByUid(uid: string): Promise<string | null> {
+  const q = query(collection(db, SEATS_COLLECTION), where('occupantUid', '==', uid))
+  const snapshot = await getDocs(q)
+  if (snapshot.empty) return null
+  return snapshot.docs[0].id
+}
+
+// UID の重複着席を全削除（リロード後の新規着席前に呼ぶ）
+export async function leaveAllSeatsForUid(uid: string): Promise<void> {
+  const q = query(collection(db, SEATS_COLLECTION), where('occupantUid', '==', uid))
+  const snapshot = await getDocs(q)
+  await Promise.all(snapshot.docs.map((d) => deleteDoc(d.ref)))
 }
 
 export async function updatePomodoroState(
